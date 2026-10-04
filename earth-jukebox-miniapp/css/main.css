@@ -1,0 +1,75 @@
+:root {
+    --bg-color: var(--tg-theme-bg-color, #0a0a1a);
+    --secondary-bg: var(--tg-theme-secondary-bg-color, #12122b);
+    --text-color: var(--tg-theme-text-color, #ffffff);
+    --hint-color: var(--tg-theme-hint-color, #8e8e93);
+    --button-color: var(--tg-theme-button-color, #00d2d3);
+    --button-text-color: var(--tg-theme-button-text-color, #000000);
+
+    --temp-color: #ff4757;
+    --sea-color: #00d2d3;
+    --cloud-color: #54a0ff;
+    --ice-color: #f1f2f6;
+    --co2-color: #ff9f43;
+    --card-border: rgba(255, 255, 255, 0.08);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Outfit', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+    padding-bottom: 70px; /* Space for TG MainButton */
+}
+
+.screen {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    padding: 16px;
+    flex-direction: column;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Header */
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.app-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.app-title i {
+    color: var(--sea-color);
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+}

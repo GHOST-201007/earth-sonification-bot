@@ -1,0 +1,16 @@
+{
+  "name": "Earth Jukebox",
+  "short_name": "EarthJukebox",
+  "description": "NASA Earth climate data as interactive music for Telegram Mini App",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0a1a",
+  "theme_color": "#0a0a1a",
+  "icons": [
+    {
+      "src": "./assets/globe.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
