@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Earth Jukebox — Real-Time NASA & NOAA Solar Wind Sonification</title>
+  <meta name="description" content="Cinematic real-time NASA and NOAA solar wind telemetry sonification dashboard. Experience the acoustic translation of solar accretion winds colliding with Earth's magnetosphere.">
+  
+  <!-- Interstellar Endurance Typography: Jost (Geometric Brand/Headings), Inter & IBM Plex Sans (UI), IBM Plex Mono (Instrument Telemetry) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Telegram Mini App SDK (safe: app also works in a normal browser) -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    (function () {
+      var tg = window.Telegram && window.Telegram.WebApp;
+      if (!tg) return;
+      try { tg.ready(); tg.expand(); } catch (e) {}
+      try { if (tg.disableVerticalSwipes) tg.disableVerticalSwipes(); } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="theme-endurance mode-music">
+  <!-- Subtle Film Grain & Cinematic Page Vignette -->
+  <div class="film-grain" aria-hidden="true"></div>
+  <div class="cinematic-vignette" aria-hidden="true"></div>
+
+  <!-- Cosmic Parallax Starfield Canvas -->
+  <canvas id="starfield-bg" aria-hidden="true"></canvas>
+
+  <!-- =========================================================================
+       0. CINEMATIC INTRO OVERLAY (Endurance Cockpit Initializer - Skippable)
+       ========================================================================= -->
+  <div class="cinematic-intro" id="cinematic-intro" role="dialog" aria-label="Mission Initialization">
+    <div class="intro-beam" id="intro-beam"></div>
+    <div class="intro-content" id="intro-content">
+      <div class="intro-emblem" aria-hidden="true">
+        <svg width="56" height="56" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="46" stroke="#F2A93B" stroke-width="1.2" stroke-dasharray="8 6" opacity="0.45"/>
+          <circle cx="50" cy="50" r="32" stroke="#5FA8D3" stroke-width="1.5" opacity="0.6"/>
+          <ellipse cx="50" cy="50" rx="46" ry="16" stroke="#FFCF7A" stroke-width="1.6" transform="rotate(-28 50 50)"/>
+          <circle cx="50" cy="50" r="6" fill="#F2A93B"/>
+        </svg>
+      </div>
+      <span class="intro-agency">NASA &bull; NOAA DEEP SPACE HELIOPHYSICS SUITE</span>
+      <h1 class="intro-title">EARTH JUKEBOX</h1>
+      <p class="intro-sub">REAL-TIME SOLAR ACCRETION WIND SONIFICATION</p>
+      <div class="intro-telemetry-badge">
+        <span class="intro-dot"></span>
+        <span>DSCOVR SATELLITE &bull; LAGRANGE L1 &bull; ONLINE</span>
+      </div>
+      <div class="intro-actions">
+        <button class="btn-skip-intro" id="btn-skip-intro" title="Skip to Cockpit Console">ENTER COCKPIT [SPACE]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       1. CINEMATIC HERO LANDING SCREEN (Vast Cosmic Overview)
+       ========================================================================= -->
+  <section class="landing-screen" id="landing-screen" aria-label="Welcome Screen">
+    <div class="landing-hero-backdrop"></div>
+    <div class="landing-content">
+      
+      <div class="nasa-insignia-hero">
+        <span class="meatball-dot"></span>
+        <span class="agency-tag">NASA &bull; NOAA Space Weather Prediction Center</span>
+      </div>
+
+      <h1 class="landing-title">Earth Jukebox</h1>
+      <p class="landing-tagline">Listen to the solar wind in real time</p>
+      <p class="landing-subtitle">Supersonic solar plasma from deep space, translated into interactive music, physical motion, and auroral light.</p>
+
+      <!-- Live Connection Pill on Landing -->
+      <div class="landing-telemetry-pill" id="landing-telemetry-pill">
+        <span class="pulse-indicator live" id="landing-pulse"></span>
+        <div class="pill-items">
+          <div class="pill-top-row">
+            <span class="pill-title">Live Deep-Space Telemetry (DSCOVR at Lagrange Point L1)</span>
+            <span class="pill-badge-live">Active Stream</span>
+          </div>
+          <div class="pill-values">
+            <span>Speed: <strong class="tabular-num" id="landing-val-speed">350.7 km/s</strong></span>
+            <span class="pill-sep">&bull;</span>
+            <span>Density: <strong class="tabular-num" id="landing-val-density">2.74 p/cm³</strong></span>
+            <span class="pill-sep">&bull;</span>
+            <span>Direction (B<sub>z</sub>): <strong class="tabular-num" id="landing-val-bz">-0.84 nT</strong></span>
+            <span class="pill-sep">&bull;</span>
+            <span>Status: <strong class="badge-storm-g0" id="landing-val-storm">Calm space weather</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="landing-actions">
+        <button class="btn-hero-primary" id="btn-enter-jukebox">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Enter the Jukebox
+        </button>
+        <button class="btn-hero-secondary" id="btn-explore-science">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Mission Science
+        </button>
+      </div>
+
+      <div class="scientific-disclosure">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Science disclosure: Acoustic sonification of real-time solar plasma measurements, not mechanical sound recorded in vacuum.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       2. MAIN MISSION CONTROL APP SHELL (Endurance Cockpit Layout)
+       ========================================================================= -->
+  <div class="app-layout hidden" id="app-shell">
+    
+    <!-- Top Cockpit Instrument Header Bar -->
+    <header class="mission-header">
+      
+      <!-- Minimalist Brand with Orbital Emblem -->
+      <div class="header-branding" id="header-brand-home" title="Return to mission overview screen" role="button" tabindex="0">
+        <div class="brand-logo-mark">
+          <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="14" stroke="#F2A93B" stroke-width="1.5" stroke-dasharray="3 3"/>
+            <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#FFCF7A" stroke-width="1.4" transform="rotate(-30 16 16)"/>
+            <circle cx="16" cy="16" r="3.5" fill="#F2A93B"/>
+          </svg>
+        </div>
+        <div class="title-group">
+          <div class="main-brand-title">EARTH JUKEBOX</div>
+          <span class="subtitle">NASA / NOAA solar wind sonification</span>
+        </div>
+      </div>
+
+      <!-- Center Cockpit Navigation Tabs with Amber Active Underline -->
+      <nav class="desktop-nav-tabs" role="tablist" aria-label="Flight Navigation">
+        <button class="nav-tab active" data-view="jukebox" role="tab" aria-selected="true" title="Cockpit Sonification Console">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6"/></svg>
+          <span>Jukebox</span>
+        </button>
+        <button class="nav-tab" data-view="timemachine" role="tab" aria-selected="false" title="Historical Solar Storms Database">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/><polyline points="12 7 12 12 15 15"/></svg>
+          <span>Time Machine</span>
+        </button>
+        <button class="nav-tab" data-view="synthlab" role="tab" aria-selected="false" title="Interactive Audio Synthesizer & Filter Controls">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><circle cx="4" cy="12" r="2"/><circle cx="12" cy="10" r="2"/><circle cx="20" cy="14" r="2"/></svg>
+          <span>Solar Synth Lab</span>
+        </button>
+        <button class="nav-tab" data-view="aurora-view" role="tab" aria-selected="false" title="Fullscreen Auroral Light Simulation">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07l14.14-14.14"/></svg>
+          <span>Aurora Planetarium</span>
+        </button>
+      </nav>
+
+      <!-- Right Header Actions Cluster -->
+      <div class="header-actions-cluster">
+        
+        <!-- Live Stream Status Pill with Relative Time -->
+        <div class="live-stream-badge" id="stream-status-badge" title="Live telemetry streaming from NOAA Space Weather Prediction Center (DSCOVR/ACE L1)">
+          <span class="pulse-indicator live" id="stream-pulse"></span>
+          <div class="status-texts">
+            <span class="status-state" id="stream-state-text">NOAA Live Feed</span>
+            <span class="status-timestamp" id="stream-timestamp">Live &bull; Updated just now</span>
+          </div>
+          <button class="icon-refresh-btn" id="refresh-telemetry-btn" title="Refresh live telemetry now" aria-label="Refresh Telemetry">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+          </button>
+        </div>
+
+        <!-- Mode Toggle: Music vs Science with helper tooltip -->
+        <div class="mode-switch-wrapper" title="Music: hear it as a melody. Science: hear the raw data." role="group" aria-label="Sound Mode">
+          <button class="mode-switch-btn active" id="btn-mode-music">Music</button>
+          <button class="mode-switch-btn" id="btn-mode-science">Science</button>
+        </div>
+
+        <!-- Take Tour Button -->
+        <button class="action-btn text-icon-btn" id="btn-take-tour" title="Take a 3-step walkthrough of Earth Jukebox" aria-label="Take the tour">
+          <span class="btn-icon">💡</span>
+          <span>Take Tour</span>
+        </button>
+
+        <!-- Discover Button -->
+        <button class="action-btn discover-btn" id="btn-discover" title="Spotlight a dramatic historical solar storm" aria-label="Discover Storm">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Discover</span>
+        </button>
+
+        <!-- Share Mission Card Button -->
+        <button class="action-btn text-icon-btn" id="btn-share-card" title="Generate & share cinematic mission card" aria-label="Share Mission Card">
+          <span class="btn-icon">🎴</span>
+          <span>Share</span>
+        </button>
+
+        <!-- Screenshot Button -->
+        <button class="action-btn icon-only-btn" id="btn-screenshot" title="Capture and download scientific screenshot" aria-label="Screenshot">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </button>
+
+        <!-- Science Guide Button -->
+        <button class="action-btn icon-only-btn" id="btn-open-science" title="Open scientific guide & sonification formulas" aria-label="Science Guide">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </button>
+
+        <!-- Theme Toggle: Cockpit Dark / Light -->
+        <button class="action-btn icon-only-btn" id="btn-theme-toggle" title="Toggle theme: Cockpit Dark / Daylight" aria-label="Toggle Theme">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+
+        <!-- Accessibility Toggle -->
+        <button class="action-btn icon-only-btn" id="btn-accessibility" title="Toggle high-contrast accessible mode" aria-label="Accessibility">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20z"/></svg>
+        </button>
+
+        <!-- Record Audio Pill -->
+        <button class="action-btn record-pill" id="btn-record-audio" title="Record current solar wind music to a WebM file">
+          <span class="record-dot" id="record-dot"></span>
+          <span id="record-text">Record Audio</span>
+          <span class="record-timer hidden" id="record-timer">00:00</span>
+        </button>
+
+      </div>
+    </header>
+
+    <!-- First-Time Visitor 3-Step Guided Tour Banner (Dismissible with Memory) -->
+    <div class="user-tour-banner" id="user-tour-banner" role="region" aria-label="First-time visitor guide">
+      <div class="tour-stepper">
+        <div class="tour-icon-wrap" id="tour-step-icon">🎵</div>
+        <div class="tour-content">
+          <div class="tour-step-indicator" id="tour-step-indicator">Step 1 of 3 &bull; Quick Start</div>
+          <h3 class="tour-title" id="tour-step-title">1. Press Play to Hear the Sun</h3>
+          <p class="tour-text" id="tour-step-text">
+            Click the large amber <strong>Play</strong> button below (or hit Spacebar). Solar wind speed sets the musical pitch, and plasma density fuels volume and sub-bass thunder!
+          </p>
+        </div>
+      </div>
+      <div class="tour-actions">
+        <div class="tour-dots">
+          <span class="tour-dot active" data-step="0"></span>
+          <span class="tour-dot" data-step="1"></span>
+          <span class="tour-dot" data-step="2"></span>
+        </div>
+        <div class="tour-nav-btns">
+          <button class="btn-tour-secondary hidden" id="btn-tour-prev">Previous</button>
+          <button class="btn-tour-primary" id="btn-tour-next">Next Step &rarr;</button>
+        </div>
+        <button class="tour-close-btn" id="btn-dismiss-tour" aria-label="Dismiss tour" title="Dismiss tour">&times;</button>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         VIEW 1: PRIMARY JUKEBOX CONSOLE (3-Column Layout)
+         ========================================================================= -->
+    <main class="main-dashboard view-panel active" id="view-panel-jukebox">
+      
+      <!-- Left Column: Solar Playlist & Mood Mix -->
+      <aside class="jukebox-rack cockpit-panel" aria-label="Jukebox Playlist">
+        <div class="panel-corner-tick top-left"></div>
+        <div class="panel-corner-tick top-right"></div>
+        <div class="panel-corner-tick bottom-left"></div>
+        <div class="panel-corner-tick bottom-right"></div>
+        
+        <div class="rack-header">
+          <div class="rack-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            <span>SOLAR PLAYLIST</span>
+          </div>
+          <span class="mode-badge" id="playback-mode-badge">Live feed</span>
+        </div>
+
+        <!-- Filter Chips Row: All / Calm / Storms -->
+        <div class="playlist-filter-row" role="group" aria-label="Filter Playlist Tracks">
+          <button class="filter-chip active" data-filter="all">All Tracks</button>
+          <button class="filter-chip" data-filter="calm">Calm (G0–G1)</button>
+          <button class="filter-chip" data-filter="storm">Storms (G2–G5)</button>
+        </div>
+
+        <!-- Scrollable Track List with Severity Left Border & Fade Mask -->
+        <div class="jukebox-tracks-scroll" id="jukebox-track-list" role="radiogroup" aria-label="Solar Storm Tracks">
+          <!-- Dynamically populated from historical-events.js -->
+        </div>
+
+        <!-- Musical Scale Quantizer Module -->
+        <div class="scale-mode-selector cockpit-module">
+          <div class="selector-label-row">
+            <label for="musical-scale-select" class="selector-label">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              <span>HARMONIC TUNING</span>
+            </label>
+            <span class="selector-hint" title="Tunes continuous space frequencies into comforting musical scales">What's this?</span>
+          </div>
+          <div class="select-wrapper">
+            <select id="musical-scale-select" class="custom-select">
+              <option value="pentatonic" selected>Celestial Pentatonic (Peaceful & Meditative)</option>
+              <option value="dorian">Dorian Helios (Space Exploration)</option>
+              <option value="lydian">Lydian Aurora (Ethereal Chimes)</option>
+              <option value="drone">Harmonic Fifth Drone (Atmospheric)</option>
+              <option value="continuous">Pure Physics (Continuous Microtonal Hz)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Solar DJ (Mood Mix) Cockpit Control Module -->
+        <div class="solar-dj-box cockpit-module">
+          <div class="dj-header">
+            <span class="dj-badge">MOOD MIX</span>
+            <span class="dj-mood-title" id="dj-mood-text">Cosmic Calm</span>
+          </div>
+          <p class="dj-tagline" id="dj-tagline-text">Gentle, meditative deep-space acoustic serenity</p>
+          <button class="btn-dj-mix" id="btn-generate-dj-mix">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            <span>Apply Mood Mix</span>
+          </button>
+        </div>
+
+      </aside>
+
+      <!-- Center Column: Hero Visualizer Stage & Transport Console -->
+      <section class="stage-container">
+        
+        <!-- Hero Interactive Canvas Viewport (Endurance Cockpit Celestial Window) -->
+        <div class="stage-viewport cockpit-viewport" id="stage-viewport">
+          <canvas id="magnetosphere-canvas"></canvas>
+
+          <!-- Cockpit Corner Brackets -->
+          <div class="viewport-bracket top-left"></div>
+          <div class="viewport-bracket top-right"></div>
+          <div class="viewport-bracket bottom-left"></div>
+          <div class="viewport-bracket bottom-right"></div>
+
+          <!-- Interactive Hotspots over canvas -->
+          <div class="canvas-hotspots-layer" aria-label="Interactive Astronomical Features">
+            <div class="canvas-hotspot hotspot-sun" id="hotspot-sun" tabindex="0" role="button" aria-label="The Sun Hotspot">
+              <span class="hotspot-ping"></span>
+              <span class="hotspot-badge">☀️ The Sun</span>
+              <div class="hotspot-tooltip">
+                <strong>The Sun</strong>
+                <p>150M km distant. Source of supersonic solar wind plasma, constantly boiling and launching charged particle streams into the heliosphere.</p>
+              </div>
+            </div>
+
+            <div class="canvas-hotspot hotspot-shield" id="hotspot-shield" tabindex="0" role="button" aria-label="Magnetic Shield Hotspot">
+              <span class="hotspot-ping"></span>
+              <span class="hotspot-badge">🛡️ Magnetic Shield</span>
+              <div class="hotspot-tooltip">
+                <strong>Earth's Bow Shock</strong>
+                <p>Deflects supersonic solar wind particles and compresses under CME shockwaves, shielding life on Earth.</p>
+              </div>
+            </div>
+
+            <div class="canvas-hotspot hotspot-aurora" id="hotspot-aurora" tabindex="0" role="button" aria-label="Auroras Hotspot">
+              <span class="hotspot-ping"></span>
+              <span class="hotspot-badge">✨ Auroral Ovals</span>
+              <div class="hotspot-tooltip">
+                <strong>Polar Auroras</strong>
+                <p>When interplanetary magnetic field Bz links Southward, reconnection cascades trigger shimmering aurora bells and polar light shows.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Viewport Top Floating Sub-Tabs & Storm Indicator -->
+          <div class="viewport-hud-top">
+            <div class="view-mode-tabs" role="tablist">
+              <button class="view-tab active" id="view-heliosphere" role="tab" aria-selected="true">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>
+                <span>Heliosphere & Shield</span>
+              </button>
+              <button class="view-tab" id="view-spectrum" role="tab" aria-selected="false">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h3l3-9 4 18 3-9h7"/></svg>
+                <span>Sound Spectrum</span>
+              </button>
+              <button class="view-tab" id="view-shield" role="tab" aria-selected="false">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>Shield Compression Lab</span>
+              </button>
+            </div>
+
+            <!-- Geomagnetic Storm Alert Badge (Endurance Instrument Pill) -->
+            <div class="storm-indicator-pill storm-g0" id="geomag-storm-pill" title="NOAA Space Weather Severity Scale (G0: Calm, G1: Minor, G2: Moderate, G3: Strong, G4: Severe, G5: Extreme)">
+              <span class="indicator-dot" id="storm-dot"></span>
+              <span class="storm-label" id="storm-level-text">Calm space weather (G0) — Quiet solar breeze</span>
+            </div>
+
+            <!-- ADD-ON: Interactive CME Solar Flare Trigger -->
+            <button class="btn-cme-trigger" id="btn-trigger-cme" title="Launch a Coronal Mass Ejection (CME) solar flare toward Earth">
+              <span class="cme-icon">💥</span>
+              <span>Trigger Solar Flare</span>
+            </button>
+          </div>
+
+          <!-- Bottom Telemetry HUD Overlay on Canvas with Instrument Gauges -->
+          <div class="canvas-telemetry-overlay">
+            <div class="canvas-readout" title="Musical frequency: Faster solar wind speed creates higher musical pitch">
+              <span class="readout-label">PITCH GAUGE</span>
+              <span class="readout-val tabular-num" id="overlay-pitch-val">130.8 Hz (C3)</span>
+            </div>
+            <div class="canvas-readout" title="Volume & Amplitude: Denser proton clouds make the sound louder with heavier sub-bass">
+              <span class="readout-label">LOUDNESS</span>
+              <span class="readout-val tabular-num" id="overlay-gain-val">-18 dB</span>
+            </div>
+            <div class="canvas-readout" title="Magnetic reconnection: Negative Bz links with Earth's shield, triggering aurora chimes">
+              <span class="readout-label">AURORAL STATE</span>
+              <span class="readout-val" id="overlay-aurora-val">Resting (B<sub>z</sub> > 0)</span>
+            </div>
+          </div>
+
+          <!-- Interactive Shield Drag Slider (Visible in Shield Mode) -->
+          <div class="shield-drag-bar hidden" id="shield-drag-bar">
+            <label for="shield-drag-slider">
+              <span>Simulate solar wind blast:</span>
+              <strong id="shield-intensity-label">1.0x Normal</strong>
+            </label>
+            <input type="range" id="shield-drag-slider" min="0.4" max="4.0" step="0.1" value="1.0" class="param-slider">
+          </div>
+        </div>
+
+        <!-- Jukebox Master Player Bar (Warm Accretion Amber Controls) -->
+        <div class="transport-deck cockpit-player">
+          
+          <div class="turntable-preview">
+            <div class="vinyl-record" id="vinyl-disc">
+              <div class="vinyl-groove"></div>
+              <div class="vinyl-label">
+                <span class="label-star">★</span>
+                <span>EARTH</span>
+                <span class="label-sub">JUKEBOX</span>
+              </div>
+            </div>
+            <div class="current-track-name">
+              <span class="now-playing-label" id="now-playing-status-label">NOW SONIFYING</span>
+              <div class="track-title-wrapper">
+                <h2 id="now-playing-title">DSCOVR Real-Time Orbit</h2>
+                <span class="shortcut-pill" title="Press Space to Play/Pause, Arrow keys for Prev/Next">⌨️ Space to Play</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center Controls Cluster with Animated Waveform Line -->
+          <div class="transport-controls-cluster">
+            <div class="audio-waveform-strip" id="audio-waveform-strip" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+
+            <div class="transport-buttons-row">
+              <button class="btn-transport-secondary" id="btn-prev-track" title="Previous solar storm (Left Arrow)" aria-label="Previous Track">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2.5"/></svg>
+              </button>
+
+              <!-- Warm Amber Accretion Play Button (52px Touch Target with Glow) -->
+              <button class="btn-play-pause" id="btn-master-play" aria-label="Start Sonification (Spacebar)" title="Start Sonification (Spacebar)">
+                <svg id="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <svg id="pause-icon" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              </button>
+
+              <button class="btn-transport-secondary" id="btn-next-track" title="Next solar storm (Right Arrow)" aria-label="Next Track">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2.5"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Volume & Reverb Cockpit Sliders (Single Line, 20px Thumbs) -->
+          <div class="audio-mixer-knobs">
+            <div class="mixer-unit">
+              <div class="mixer-row">
+                <label for="master-volume-slider" class="mixer-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  <span>Volume</span>
+                </label>
+                <input type="range" id="master-volume-slider" min="0" max="1" step="0.01" value="0.75" class="slider-clean" aria-label="Master Volume">
+                <span class="knob-val tabular-num" id="volume-val-display">75%</span>
+              </div>
+            </div>
+
+            <div class="mixer-unit">
+              <div class="mixer-row">
+                <label for="space-reverb-slider" class="mixer-label">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12a4 4 0 0 1 8 0"/></svg>
+                  <span>Reverb</span>
+                </label>
+                <input type="range" id="space-reverb-slider" min="0" max="1" step="0.01" value="0.45" class="slider-clean" aria-label="Space Reverb">
+                <span class="knob-val tabular-num" id="reverb-val-display">45%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ADD-ON: 3D Binaural Spatial Audio & Deep Space Focus Timer -->
+          <div class="player-addons-cluster">
+            <button class="btn-addon-pill" id="btn-spatial-audio" title="Toggle 3D Binaural Spatial Audio (Best with headphones)">
+              <span class="addon-icon">🎧</span>
+              <span class="addon-label" id="spatial-audio-label">3D Space</span>
+            </button>
+            <button class="btn-addon-pill" id="btn-sleep-timer" title="Set Deep Space Focus/Sleep Timer (15m, 30m, 60m, Off)">
+              <span class="addon-icon">⏱️</span>
+              <span class="addon-label" id="sleep-timer-label">Timer</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Space Weather Mission Log Panel -->
+        <div class="space-story-panel cockpit-panel">
+          <div class="story-header">
+            <span class="story-badge">MISSION LOG</span>
+            <span class="story-heading">RIGHT NOW &bull; HELIOPHYSICS OBSERVATORY</span>
+          </div>
+          <h3 class="story-lead" id="dynamic-story-lead">Currently, space sounds like a gentle, slow-moving solar wind breeze (yielding a tranquil, deep fundamental bass drone).</h3>
+          
+          <div class="story-sub-bullets">
+            <div class="story-sub-card">
+              <span class="sub-card-icon">🌊</span>
+              <div class="sub-card-content">
+                <strong>Particle Density:</strong>
+                <span id="dynamic-story-density">The proton density is low, keeping the acoustic volume soft, spacious, and ethereal.</span>
+              </div>
+            </div>
+            <div class="story-sub-card">
+              <span class="sub-card-icon">🧲</span>
+              <div class="sub-card-content">
+                <strong>Magnetic Shield:</strong>
+                <span id="dynamic-story-magnetic">B<sub>z</sub> points Northward (+0.8 nT), aligning harmoniously with Earth's magnetic dipole and keeping the auroral layer calm.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Collapsible Deep Scientific Mission Breakdown -->
+          <div class="story-expand-wrapper">
+            <button class="btn-story-expand" id="btn-story-expand" aria-expanded="false">
+              <span>Read scientific narrative telemetry</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="story-extra-details hidden" id="story-extra-details">
+              <p id="story-summary-text">Space weather conditions are nominal. Spacecraft telemetry at Lagrange Point 1 confirms the Earth's bow shock is stable at approximately 10 Earth radii, keeping power grids, aviation communications, and GPS satellites running smoothly.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- Right Column: Scientific Cockpit Telemetry Instruments -->
+      <aside class="telemetry-panel cockpit-panel mode-simple" id="telemetry-panel" aria-label="Scientific Solar Telemetry">
+        <div class="panel-corner-tick top-left"></div>
+        <div class="panel-corner-tick top-right"></div>
+        <div class="panel-corner-tick bottom-left"></div>
+        <div class="panel-corner-tick bottom-right"></div>
+
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            <span>LIVE SOLAR TELEMETRY</span>
+          </div>
+
+          <!-- Simple vs Advanced Mode Segmented Switch -->
+          <div class="telemetry-mode-switch" role="group" aria-label="Telemetry complexity level">
+            <button class="mode-pill active" id="btn-mode-simple" title="Show simple essentials for beginners">Simple</button>
+            <button class="mode-pill" id="btn-mode-advanced" title="Show all 5 metrics, manual tuning sliders, and raw exports">Advanced</button>
+          </div>
+
+          <div class="telemetry-actions advanced-only hidden">
+            <button class="btn-micro" id="btn-toggle-tuning" title="Toggle manual parameter tuning sliders">Tune manually</button>
+            <button class="btn-micro" id="btn-export-csv" title="Download historical measurements as CSV spreadsheet">CSV</button>
+            <button class="btn-micro" id="btn-export-json" title="Download historical measurements as JSON">JSON</button>
+          </div>
+        </div>
+
+        <!-- Metric Cockpit Gauge Modules Grid -->
+        <div class="telemetry-grid">
+          
+          <!-- Speed Card (Mapped to Pitch) -->
+          <div class="param-card cockpit-gauge-card active-mapping-card" id="card-param-speed">
+            <div class="param-header">
+              <div class="param-icon speed-color">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </div>
+              <div class="param-titles">
+                <div class="param-title-row">
+                  <span class="p-name">Solar wind speed</span>
+                  <span class="info-tooltip-trigger" title="Speed of the solar wind in kilometers per second. Faster wind raises musical frequency/pitch.">ⓘ</span>
+                </div>
+                <div class="param-sub-row">
+                  <span class="p-tech-label">Proton speed (v<sub>sw</sub>)</span>
+                  <span class="metric-status-badge status-calm" id="status-badge-speed"><span class="dot"></span><span class="txt">Normal breeze</span></span>
+                </div>
+              </div>
+              <svg class="sparkline-svg" id="spark-speed" aria-hidden="true"></svg>
+            </div>
+
+            <div class="param-metric-row">
+              <div class="param-metric">
+                <span class="p-value tabular-num" id="val-speed">350.7</span>
+                <span class="p-unit">km/s</span>
+              </div>
+              <div class="p-mapping-chip pitch-chip">Controls: Sound Pitch</div>
+            </div>
+
+            <!-- Mini Cockpit Gauge Arc & Bar -->
+            <div class="param-bar-bg">
+              <div class="param-bar-fill speed-bar" id="bar-speed" style="width: 25%;"></div>
+            </div>
+
+            <!-- Manual Tuning Drawer -->
+            <div class="slider-drawer advanced-only hidden" id="drawer-speed">
+              <div class="slider-row">
+                <label for="slider-speed" class="slider-subtext">Manual speed override:</label>
+                <input type="range" id="slider-speed" min="250" max="1500" step="1" value="350" class="param-slider" aria-label="Proton Speed Slider">
+              </div>
+            </div>
+          </div>
+
+          <!-- Density Card (Mapped to Volume) -->
+          <div class="param-card cockpit-gauge-card active-mapping-card" id="card-param-density">
+            <div class="param-header">
+              <div class="param-icon density-color">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              </div>
+              <div class="param-titles">
+                <div class="param-title-row">
+                  <span class="p-name">Particle density</span>
+                  <span class="info-tooltip-trigger" title="Number of solar protons per cubic centimeter. Higher density increases loudness, bass, and harmonic saturation.">ⓘ</span>
+                </div>
+                <div class="param-sub-row">
+                  <span class="p-tech-label">Proton density (N<sub>p</sub>)</span>
+                  <span class="metric-status-badge status-calm" id="status-badge-density"><span class="dot"></span><span class="txt">Light plasma</span></span>
+                </div>
+              </div>
+              <svg class="sparkline-svg" id="spark-density" aria-hidden="true"></svg>
+            </div>
+
+            <div class="param-metric-row">
+              <div class="param-metric">
+                <span class="p-value tabular-num" id="val-density">2.74</span>
+                <span class="p-unit">p/cm³</span>
+              </div>
+              <div class="p-mapping-chip volume-chip">Controls: Volume & Bass</div>
+            </div>
+
+            <div class="param-bar-bg">
+              <div class="param-bar-fill density-bar" id="bar-density" style="width: 15%;"></div>
+            </div>
+
+            <div class="slider-drawer advanced-only hidden" id="drawer-density">
+              <div class="slider-row">
+                <label for="slider-density" class="slider-subtext">Manual density override:</label>
+                <input type="range" id="slider-density" min="0.2" max="60" step="0.1" value="2.74" class="param-slider" aria-label="Proton Density Slider">
+              </div>
+            </div>
+          </div>
+
+          <!-- Temperature Card (Mapped to Filter Cutoff) -->
+          <div class="param-card cockpit-gauge-card active-mapping-card advanced-metric hidden" id="card-param-temp">
+            <div class="param-header">
+              <div class="param-icon temp-color">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+              </div>
+              <div class="param-titles">
+                <div class="param-title-row">
+                  <span class="p-name">Plasma temperature</span>
+                  <span class="info-tooltip-trigger" title="Temperature of the ionized gas in Kelvin. Hotter plasma brightens high overtones and audio shimmer.">ⓘ</span>
+                </div>
+                <div class="param-sub-row">
+                  <span class="p-tech-label">Proton temp (T<sub>p</sub>)</span>
+                  <span class="metric-status-badge status-normal" id="status-badge-temp"><span class="dot"></span><span class="txt">Typical heat</span></span>
+                </div>
+              </div>
+              <svg class="sparkline-svg" id="spark-temp" aria-hidden="true"></svg>
+            </div>
+
+            <div class="param-metric-row">
+              <div class="param-metric">
+                <span class="p-value tabular-num" id="val-temp">46,113</span>
+                <span class="p-unit">Kelvin</span>
+              </div>
+              <div class="p-mapping-chip shimmer-chip">Controls: Filter Shimmer</div>
+            </div>
+
+            <div class="param-bar-bg">
+              <div class="param-bar-fill temp-bar" id="bar-temp" style="width: 18%;"></div>
+            </div>
+
+            <div class="slider-drawer advanced-only hidden" id="drawer-temp">
+              <div class="slider-row">
+                <label for="slider-temp" class="slider-subtext">Manual temperature tuning:</label>
+                <input type="range" id="slider-temp" min="10000" max="600000" step="1000" value="46113" class="param-slider" aria-label="Temperature Slider">
+              </div>
+            </div>
+          </div>
+
+          <!-- IMF Bz Card (Mapped to Aurora Arpeggiator) -->
+          <div class="param-card cockpit-gauge-card active-mapping-card advanced-metric hidden" id="card-param-bz">
+            <div class="param-header">
+              <div class="param-icon bz-color">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+              </div>
+              <div class="param-titles">
+                <div class="param-title-row">
+                  <span class="p-name">Magnetic direction</span>
+                  <span class="info-tooltip-trigger" title="When Bz is negative (Southward), the solar wind links with Earth's magnetic shield, triggering celestial aurora chimes!">ⓘ</span>
+                </div>
+                <div class="param-sub-row">
+                  <span class="p-tech-label">Interplanetary (IMF B<sub>z</sub>)</span>
+                  <span class="metric-status-badge status-calm" id="status-badge-bz"><span class="dot"></span><span class="txt">Shield closed (+)</span></span>
+                </div>
+              </div>
+              <svg class="sparkline-svg" id="spark-bz" aria-hidden="true"></svg>
+            </div>
+
+            <div class="param-metric-row">
+              <div class="param-metric">
+                <span class="p-value tabular-num" id="val-bz">-0.84</span>
+                <span class="p-unit">nT</span>
+              </div>
+              <div class="p-mapping-chip aurora-chip">Controls: Aurora Bells</div>
+            </div>
+
+            <div class="param-bar-bg bz-bi-directional">
+              <div class="bz-center-zero"></div>
+              <div class="param-bar-fill bz-bar" id="bar-bz" style="width: 48%;"></div>
+            </div>
+
+            <div class="slider-drawer advanced-only hidden" id="drawer-bz">
+              <div class="slider-row">
+                <label for="slider-bz" class="slider-subtext">Manual field direction:</label>
+                <input type="range" id="slider-bz" min="-30" max="30" step="0.1" value="-0.84" class="param-slider" aria-label="IMF Bz Slider">
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Magnetic Field Bt Card -->
+          <div class="param-card cockpit-gauge-card active-mapping-card advanced-metric hidden" id="card-param-bt">
+            <div class="param-header">
+              <div class="param-icon bt-color">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+              </div>
+              <div class="param-titles">
+                <div class="param-title-row">
+                  <span class="p-name">Total magnetic field</span>
+                  <span class="info-tooltip-trigger" title="Overall interplanetary magnetic field intensity, controlling cosmic reverberation and stereo width.">ⓘ</span>
+                </div>
+                <div class="param-sub-row">
+                  <span class="p-tech-label">Total field (B<sub>t</sub>)</span>
+                  <span class="metric-status-badge status-calm" id="status-badge-bt"><span class="dot"></span><span class="txt">Quiet field</span></span>
+                </div>
+              </div>
+              <svg class="sparkline-svg" id="spark-bt" aria-hidden="true"></svg>
+            </div>
+
+            <div class="param-metric-row">
+              <div class="param-metric">
+                <span class="p-value tabular-num" id="val-bt">3.48</span>
+                <span class="p-unit">nT</span>
+              </div>
+              <div class="p-mapping-chip reverb-chip">Controls: Space Reverb</div>
+            </div>
+
+            <div class="param-bar-bg">
+              <div class="param-bar-fill bt-bar" id="bar-bt" style="width: 20%;"></div>
+            </div>
+          </div>
+
+          <!-- Simple Mode Summary Card (Toggles with Advanced Mode) -->
+          <div class="simple-summary-card" id="simple-summary-card">
+            <div class="summary-card-header">
+              <span class="summary-icon">🛰️</span>
+              <strong>Space Weather At a Glance</strong>
+            </div>
+            <p id="simple-summary-text">Solar wind is blowing at a gentle 350 km/s. Earth's magnetic shield is holding strong, creating a tranquil acoustic drone with quiet auroras.</p>
+            <button class="btn-link-advanced" id="btn-link-advanced">Show All 5 Scientific Metrics &rarr;</button>
+          </div>
+
+        </div>
+
+        <!-- Reset to Live Telemetry Button -->
+        <button class="btn-reset-live hidden" id="btn-reset-telemetry-live" title="Reset all manual sliders and restore live NOAA streaming">
+          ↺ Reset to Live Telemetry Feed
+        </button>
+
+        <!-- "How the Earth is Playing" Collapsible Cockpit Legend Card -->
+        <div class="mapping-schematic-box collapsible" id="legend-card">
+          <button class="schematic-header-btn" id="btn-toggle-legend" aria-expanded="true" title="Toggle Sonification Legend">
+            <div class="schematic-title">
+              <span class="sparkle">🎼</span>
+              <span>HOW EARTH TURNS DATA INTO MUSIC</span>
+            </div>
+            <span class="legend-chevron" id="legend-chevron">▾</span>
+          </button>
+          <div class="schematic-links" id="legend-content">
+            <div class="s-link">
+              <span class="s-source"><span class="dot-amber"></span> Wind Speed</span>
+              <span class="s-arrow">&rarr;</span>
+              <span class="s-target">Musical Pitch</span>
+            </div>
+            <div class="s-link">
+              <span class="s-source"><span class="dot-blue"></span> Particle Density</span>
+              <span class="s-arrow">&rarr;</span>
+              <span class="s-target">Volume & Sub-bass</span>
+            </div>
+            <div class="s-link">
+              <span class="s-source"><span class="dot-orange"></span> Gas Temperature</span>
+              <span class="s-arrow">&rarr;</span>
+              <span class="s-target">Tone Brightness</span>
+            </div>
+            <div class="s-link">
+              <span class="s-source"><span class="dot-emerald"></span> Southward B<sub>z</sub></span>
+              <span class="s-arrow">&rarr;</span>
+              <span class="s-target">Aurora Chimes</span>
+            </div>
+            <div class="s-link">
+              <span class="s-source"><span class="dot-purple"></span> Total Field B<sub>t</sub></span>
+              <span class="s-arrow">&rarr;</span>
+              <span class="s-target">Space Echo Reverb</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transparent Data Attribution -->
+        <div class="data-source-pill">
+          <span>Data: NOAA SWPC Deep-Space Telemetry (DSCOVR/ACE L1)</span>
+        </div>
+
+      </aside>
+
+    </main>
+
+    <!-- =========================================================================
+         VIEW 2: SOLAR TIME MACHINE
+         ========================================================================= -->
+    <section class="time-machine-view view-panel hidden" id="view-panel-timemachine">
+      <div class="tm-header">
+        <div class="tm-titles">
+          <span class="modal-badge">HISTORICAL SOLAR STORMS</span>
+          <h2>Solar Time Machine</h2>
+          <p>Explore historic space weather events and listen to their reconstructed acoustic soundscapes across two centuries.</p>
+        </div>
+        <div class="tm-filter-pills">
+          <span class="pill-stat">7 Historical Milestones</span>
+          <span class="pill-stat">Carrington (1859) to May 2024</span>
+        </div>
+      </div>
+
+      <div class="tm-events-grid" id="tm-events-container">
+        <!-- Populated from historical-events.js -->
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         VIEW 3: SOLAR SYNTH LAB
+         ========================================================================= -->
+    <section class="synth-lab-view view-panel hidden" id="view-panel-synthlab">
+      <div class="synth-header">
+        <div class="synth-titles">
+          <span class="modal-badge">INTERACTIVE SOUND LAB</span>
+          <h2>Solar Synth Lab</h2>
+          <p>Sculpt space weather soundscapes directly using our built-in synthesizer processors.</p>
+        </div>
+
+        <div class="synth-mode-switch">
+          <button class="btn-toggle active" id="synth-mode-physics">Live Physics Mode</button>
+          <button class="btn-toggle" id="synth-mode-manual">Manual Synth Mode</button>
+          <button class="btn-primary-small" id="btn-synth-reset-live">Reset to Live Data</button>
+        </div>
+      </div>
+
+      <div class="synth-lab-grid">
+        <div class="synth-rack-card" id="synth-manual-controls-group">
+          <h3>Acoustic Sound Processors</h3>
+          
+          <div class="synth-control-unit">
+            <div class="synth-unit-header">
+              <label for="synth-slider-cutoff">Resonant 24dB Filter Cutoff</label>
+              <span class="tabular-num" id="synth-val-cutoff">1,200 Hz</span>
+            </div>
+            <input type="range" id="synth-slider-cutoff" min="80" max="12000" step="10" value="1200" class="param-slider">
+          </div>
+
+          <div class="synth-control-unit">
+            <div class="synth-unit-header">
+              <label for="synth-slider-q">Filter Resonance (Q Peak)</label>
+              <span class="tabular-num" id="synth-val-q">Q 4.5</span>
+            </div>
+            <input type="range" id="synth-slider-q" min="0.5" max="15" step="0.1" value="4.5" class="param-slider">
+          </div>
+
+          <div class="synth-control-unit">
+            <div class="synth-unit-header">
+              <label for="synth-slider-distortion">Plasma Waveshaper Distortion</label>
+              <span class="tabular-num" id="synth-val-distortion">10%</span>
+            </div>
+            <input type="range" id="synth-slider-distortion" min="0" max="1" step="0.01" value="0.1" class="param-slider">
+          </div>
+
+          <div class="synth-control-unit">
+            <div class="synth-unit-header">
+              <label for="synth-slider-sub">Sub-Bass Reinforcement Gain</label>
+              <span class="tabular-num" id="synth-val-sub">35%</span>
+            </div>
+            <input type="range" id="synth-slider-sub" min="0" max="1" step="0.01" value="0.35" class="param-slider">
+          </div>
+
+          <div class="synth-control-unit">
+            <div class="synth-unit-header">
+              <label for="synth-slider-aurora">Aurora Arpeggiator Rate</label>
+              <span class="tabular-num" id="synth-val-aurora">450 ms</span>
+            </div>
+            <input type="range" id="synth-slider-aurora" min="150" max="1200" step="25" value="450" class="param-slider">
+          </div>
+        </div>
+
+        <div class="synth-rack-card">
+          <h3>Current Physics Baseline</h3>
+          <p class="synth-hint">In Physics Mode, real scientific telemetry powers every synthesizer parameter automatically.</p>
+
+          <div class="lab-phys-row">
+            <span>Speed: <strong class="tabular-num" id="lab-speed-val">350 km/s</strong></span>
+            <span>Density: <strong class="tabular-num" id="lab-density-val">2.7 p/cm³</strong></span>
+            <span>Temp: <strong class="tabular-num" id="lab-temp-val">46,000 K</strong></span>
+            <span>B<sub>z</sub>: <strong class="tabular-num" id="lab-bz-val">-0.8 nT</strong></span>
+          </div>
+
+          <div class="science-callout mt-12">
+            <strong>Lab Experiment:</strong>
+            <p>Switch to Manual Mode or slide B<sub>z</sub> to -20 nT and push Speed past 900 km/s to simulate an intense solar CME impact with rapid auroral bell cascades.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         VIEW 4: AURORA PLANETARIUM FULLSCREEN
+         ========================================================================= -->
+    <section class="aurora-view view-panel hidden" id="view-panel-aurora">
+      <div class="planetarium-overlay">
+        <div class="planetarium-hud-top">
+          <span class="planetarium-brand">Earth Jukebox &bull; Aurora Planetarium</span>
+          <button class="btn-micro" id="btn-exit-planetarium">Exit Fullscreen</button>
+        </div>
+        <div class="planetarium-hud-bottom">
+          <div class="pl-val">Live Solar Wind: <strong class="tabular-num" id="pl-speed">350 km/s</strong></div>
+          <div class="pl-val">Magnetic Direction: <strong class="tabular-num" id="pl-bz">-0.8 nT</strong></div>
+          <div class="pl-val">Reconnection Status: <strong id="pl-recon">ACTIVE</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         MODALS & DIALOGS
+         ========================================================================= -->
+
+    <!-- Modal: Science & Sonification Guide -->
+    <div class="modal-backdrop hidden" id="science-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-badge">HELIOPHYSICS ACOUSTIC GUIDE</span>
+            <h2 id="modal-title">How Earth Jukebox Sonifies the Cosmos</h2>
+          </div>
+          <button class="modal-close-btn" id="btn-close-modal" aria-label="Close dialog">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="modal-section">
+            <h3>1. Can Sound Really Travel in Space?</h3>
+            <p>
+              In deep space, vacuum prevents mechanical audio waves from reaching human ears. However, space is permeated by <strong>magnetohydrodynamic plasma waves</strong> and supersonic solar winds. Sonification maps these physical measurements to audible frequencies, allowing our auditory perception to directly interpret the Sun's dynamic influence on Earth.
+            </p>
+          </div>
+
+          <div class="modal-section">
+            <h3>2. The Sonification Formula</h3>
+            <div class="matrix-cards-grid">
+              <div class="m-card">
+                <strong class="color-amber">Solar Wind Speed (v<sub>sw</sub>) &rarr; Sound Frequency (Pitch)</strong>
+                <p>Quiescent solar winds travel at 300–450 km/s (deep fundamental bass between 60–130 Hz). Supersonic CMEs accelerate past 1,200 km/s, lifting the acoustic pitch into piercing soprano octaves.</p>
+              </div>
+              <div class="m-card">
+                <strong class="color-cyan">Particle Density (N<sub>p</sub>) &rarr; Volume & Sub-bass Rumble</strong>
+                <p>Dense proton clouds compressing Earth's magnetosphere amplify acoustic gain, drive sub-bass harmonics, and saturate the audio spectrum.</p>
+              </div>
+              <div class="m-card">
+                <strong class="color-orange">Plasma Temperature (T<sub>p</sub>) &rarr; Tone Shimmer</strong>
+                <p>Hot solar plasma (hundreds of thousands of Kelvin) opens a 24dB resonant lowpass filter, releasing high-order overtones and sparkle.</p>
+              </div>
+              <div class="m-card">
+                <strong class="color-emerald">Magnetic Field (B<sub>z</sub>) &rarr; Aurora Chimes</strong>
+                <p>When the magnetic field points Southward (B<sub>z</sub> &lt; 0), magnetic reconnection cracks Earth's shield. The app triggers cascading celestial arpeggio chimes representing the Aurora Borealis!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-section">
+            <h3>3. Real-Time Spacecraft at Lagrange Point 1</h3>
+            <p>
+              The live stream connects directly to the NOAA Space Weather Prediction Center (SWPC) Real-Time Solar Wind feed, monitoring telemetry from the <strong>DSCOVR</strong> and <strong>ACE</strong> satellites stationed 1.5 million kilometers towards the Sun. Earth Jukebox automatically refreshes as new measurements arrive.
+            </p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-primary" id="btn-close-modal-bottom">Got it, Let's Listen!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: "Discover Something" Solar Event Spotlight -->
+    <div class="modal-backdrop hidden" id="discover-modal" role="dialog" aria-modal="true" aria-labelledby="discover-title">
+      <div class="modal-window">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-badge">SOLAR EVENT SPOTLIGHT</span>
+            <h2 id="discover-title">The Carrington Event (1859)</h2>
+          </div>
+          <button class="modal-close-btn" id="btn-close-discover">&times;</button>
+        </div>
+        <div class="modal-body" id="discover-body">
+          <!-- Populated dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn-primary" id="btn-discover-listen">Load This Event in Jukebox</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+    <!-- =========================================================================
+         MOBILE BOTTOM NAVIGATION BAR
+         ========================================================================= -->
+    <nav class="mobile-bottom-nav" aria-label="Mobile Navigation">
+      <button class="mob-tab active" data-view="jukebox" data-target="stage-viewport" id="mob-tab-play" title="Stage & Player">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span>Play</span>
+      </button>
+      <button class="mob-tab" data-view="jukebox" data-target="jukebox-rack" id="mob-tab-playlist" title="Solar Playlist">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <span>Playlist</span>
+      </button>
+      <button class="mob-tab" data-view="jukebox" data-target="telemetry-panel" id="mob-tab-data" title="Telemetry Data">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        <span>Data</span>
+      </button>
+      <button class="mob-tab" data-view="jukebox" data-target="space-story-panel" id="mob-tab-story" title="Mission Story">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>Story</span>
+      </button>
+      <button class="mob-tab" data-view="timemachine" id="mob-tab-history" title="Historic Storms Time Machine">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><polyline points="3 3 3 8 8 8"/><polyline points="12 7 12 12 15 15"/></svg>
+        <span>History</span>
+      </button>
+      <button class="mob-tab" id="mob-science-btn" title="Science Guide">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Guide</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Application Script Modules -->
+  <script src="historical-events.js"></script>
+  <script src="telemetry.js"></script>
+  <script src="solar-audio.js"></script>
+  <script src="visualizer.js"></script>
+  <script src="solar-synth.js"></script>
+  <script src="recorder.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

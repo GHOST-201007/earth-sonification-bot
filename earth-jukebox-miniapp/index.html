@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Earth Jukebox Telegram Mini App</title>
     
     <!-- Telegram WebApp SDK -->
@@ -21,52 +21,55 @@
 
     <!-- SCREEN 1: SPLASH / LOADING -->
     <div class="screen active" id="screen-splash" style="justify-content: center; align-items: center; text-align: center;">
+      <div class="screen-container" style="justify-content: center; align-items: center;">
         <div class="hero-globe animate-pulse animate-float">
-            <img src="assets/globe.svg" alt="Animated Earth" style="width: 100%; height: 100%;">
+            <img src="assets/globe.svg" alt="Animated Earth" style="width: 100%; height: 100%; max-width: 100%; object-fit: cover;">
         </div>
-        <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; background: linear-gradient(90deg, #00d2d3, #54a0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EARTH JUKEBOX</h2>
-        <p style="font-size: 0.85rem; color: var(--hint-color); margin-bottom: 25px;">NASA Data ➔ Music</p>
+        <h2 style="font-size: clamp(28px, 4vw + 16px, 64px); font-weight: 800; margin-bottom: 6px; background: linear-gradient(90deg, #00d2d3, #54a0ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">EARTH JUKEBOX</h2>
+        <p style="font-size: clamp(14px, 1.5vw + 10px, 24px); color: var(--hint-color); margin-bottom: 25px;">NASA Data ➔ Music</p>
         
         <div style="width: 180px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
             <div id="splash-progress-bar" style="width: 0%; height: 100%; background: #00d2d3; transition: width 0.3s;"></div>
         </div>
-        <span style="font-size: 0.75rem; color: var(--hint-color);">Ma'lumotlar yuklanmoqda...</span>
+        <span style="font-size: clamp(12px, 1vw + 10px, 18px); color: var(--hint-color);">Ma'lumotlar yuklanmoqda...</span>
+      </div>
     </div>
 
     <!-- SCREEN 2: HOME -->
     <div class="screen" id="screen-home">
+      <div class="screen-container">
         <div class="app-header">
             <div class="app-title"><i class="fa-solid fa-earth-americas"></i> Earth Jukebox</div>
-            <button class="icon-btn"><i class="fa-solid fa-gear"></i></button>
+            <button class="icon-btn" tabindex="0" aria-label="Settings"><i class="fa-solid fa-gear"></i></button>
         </div>
 
         <div class="card-box hero-box animate-float">
-            <div class="hero-globe" style="width: 100px; height: 100px;">
-                <img src="assets/globe.svg" alt="Earth Globe" style="width: 100%; height: 100%;">
+            <div class="hero-globe" style="width: clamp(100px, 15vw, 200px); height: clamp(100px, 15vw, 200px);">
+                <img src="assets/globe.svg" alt="Earth Globe" style="width: 100%; height: 100%; max-width: 100%; object-fit: cover;">
             </div>
             <div class="hero-heading">Planetamizni eshiting</div>
             <div class="hero-sub">NASA iqlim ma'lumotlarini musiqiy tovushlarda his eting</div>
         </div>
 
-        <div style="font-size: 0.85rem; font-weight: 700; color: var(--hint-color); margin-bottom: 8px;">📊 PARAMETRLAR</div>
+        <div style="font-size: clamp(12px, 1vw + 10px, 18px); font-weight: 700; color: var(--hint-color); margin-bottom: 8px;">📊 PARAMETRLAR</div>
         <div class="params-grid">
-            <div class="mini-param-card active" id="btn-param-temperature" style="--card-color: #ff4757;" onclick="app.toggleParam('temperature')">
+            <div class="mini-param-card active" tabindex="0" id="btn-param-temperature" style="--card-color: #ff4757;" onclick="app.toggleParam('temperature')">
                 <i class="fa-solid fa-temperature-high"></i>
                 <div class="mini-param-title">Harorat</div>
             </div>
-            <div class="mini-param-card active" id="btn-param-seaLevel" style="--card-color: #00d2d3;" onclick="app.toggleParam('seaLevel')">
+            <div class="mini-param-card active" tabindex="0" id="btn-param-seaLevel" style="--card-color: #00d2d3;" onclick="app.toggleParam('seaLevel')">
                 <i class="fa-solid fa-water"></i>
                 <div class="mini-param-title">Dengiz sathi</div>
             </div>
-            <div class="mini-param-card active" id="btn-param-cloudCover" style="--card-color: #54a0ff;" onclick="app.toggleParam('cloudCover')">
+            <div class="mini-param-card active" tabindex="0" id="btn-param-cloudCover" style="--card-color: #54a0ff;" onclick="app.toggleParam('cloudCover')">
                 <i class="fa-solid fa-cloud"></i>
                 <div class="mini-param-title">Bulutlar</div>
             </div>
-            <div class="mini-param-card active" id="btn-param-arcticIce" style="--card-color: #f1f2f6;" onclick="app.toggleParam('arcticIce')">
+            <div class="mini-param-card active" tabindex="0" id="btn-param-arcticIce" style="--card-color: #f1f2f6;" onclick="app.toggleParam('arcticIce')">
                 <i class="fa-regular fa-snowflake"></i>
                 <div class="mini-param-title">Muzliklar</div>
             </div>
-            <div class="mini-param-card active" id="btn-param-co2" style="--card-color: #ff9f43;" onclick="app.toggleParam('co2')">
+            <div class="mini-param-card active" tabindex="0" id="btn-param-co2" style="--card-color: #ff9f43;" onclick="app.toggleParam('co2')">
                 <i class="fa-solid fa-smog"></i>
                 <div class="mini-param-title">CO₂</div>
             </div>
@@ -77,63 +80,68 @@
                 <span>📅 Oraliq</span>
                 <span>1960 ➔ 2024</span>
             </div>
-            <input type="range" min="1960" max="2024" value="1960" readonly>
+            <input type="range" min="1960" max="2024" value="1960" readonly tabindex="0">
         </div>
+      </div>
     </div>
 
     <!-- SCREEN 3: PLAYER -->
     <div class="screen" id="screen-player">
+      <div class="screen-container">
         <div class="app-header">
             <div class="app-title"><i class="fa-solid fa-music"></i> TINGLASH</div>
-            <button class="icon-btn"><i class="fa-solid fa-volume-high"></i></button>
+            <button class="icon-btn" tabindex="0"><i class="fa-solid fa-volume-high"></i></button>
         </div>
 
-        <canvas id="waveform-canvas"></canvas>
+        <canvas id="waveform-canvas" style="width: 100%; height: clamp(120px, 15vh, 250px); max-width: 100%;"></canvas>
 
         <div class="card-box">
-            <div style="font-size: 0.85rem; color: var(--hint-color); margin-bottom: 4px;">📅 Hozirgi Yil:</div>
-            <div style="font-size: 2.2rem; font-weight: 800; color: #00d2d3;" id="stat-year">1960</div>
+            <div style="font-size: clamp(12px, 1vw + 10px, 18px); color: var(--hint-color); margin-bottom: 4px;">📅 Hozirgi Yil:</div>
+            <div style="font-size: clamp(32px, 4vw + 24px, 64px); font-weight: 800; color: #00d2d3;" id="stat-year">1960</div>
 
             <div class="live-stats-row">
-                <div class="stat-item">
+                <div class="stat-item" tabindex="0">
                     <div class="stat-item-label">🌡 Harorat</div>
                     <div class="stat-item-val" id="stat-temp">-0.05°C</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item" tabindex="0">
                     <div class="stat-item-label">🌊 Dengiz sathi</div>
                     <div class="stat-item-val" id="stat-sea">+0mm</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-item" tabindex="0">
                     <div class="stat-item-label">💨 CO₂</div>
                     <div class="stat-item-val" id="stat-co2">317 ppm</div>
                 </div>
             </div>
         </div>
+      </div>
     </div>
 
     <!-- SCREEN 4: RESULTS / SHARE -->
     <div class="screen" id="screen-results">
+      <div class="screen-container">
         <div class="app-header">
             <div class="app-title"><i class="fa-solid fa-trophy"></i> Natija</div>
         </div>
 
-        <div class="result-card-display">
-            <div class="hero-globe" style="width: 80px; height: 80px;">
-                <img src="assets/globe.svg" alt="Earth">
+        <div class="result-card-display" tabindex="0">
+            <div class="hero-globe" style="width: clamp(80px, 10vw, 150px); height: clamp(80px, 10vw, 150px);">
+                <img src="assets/globe.svg" alt="Earth" style="max-width: 100%; object-fit: cover;">
             </div>
             <div class="result-card-title">EARTH JUKEBOX</div>
-            <p style="font-size: 0.85rem; color: var(--hint-color); margin-bottom: 12px;">1960 ➔ 2024 Iqlim Simfoniyasi</p>
-            <div style="font-size: 1.1rem; font-weight: 700; color: #ff4757;">+1.29°C | +101mm</div>
+            <p style="font-size: clamp(14px, 1.2vw + 10px, 20px); color: var(--hint-color); margin-bottom: 12px; overflow-wrap: anywhere;">1960 ➔ 2024 Iqlim Simfoniyasi</p>
+            <div style="font-size: clamp(18px, 1.5vw + 14px, 32px); font-weight: 700; color: #ff4757;">+1.29°C | +101mm</div>
         </div>
 
         <div class="action-btn-group">
-            <button class="btn-secondary" onclick="telegramController.shareInline('Men Yer simfoniyasini eshitdim! 🌍')">
+            <button class="btn-secondary" tabindex="0" onclick="telegramController.shareInline('Men Yer simfoniyasini eshitdim! 🌍')">
                 <i class="fa-solid fa-share-nodes"></i> Do'stlarga Ulashish
             </button>
-            <button class="btn-secondary" onclick="uiManager.showScreen('screen-home')">
+            <button class="btn-secondary" tabindex="0" onclick="uiManager.showScreen('screen-home')">
                 <i class="fa-solid fa-rotate-left"></i> Qayta O'ynash
             </button>
         </div>
+      </div>
     </div>
 
     <!-- Mini App Logic Scripts -->

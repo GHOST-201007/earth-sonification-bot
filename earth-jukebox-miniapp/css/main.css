@@ -28,15 +28,31 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Outfit', sans-serif;
     overflow-x: hidden;
     min-height: 100vh;
-    padding-bottom: 70px; /* Space for TG MainButton */
+    min-height: 100dvh;
+    min-height: var(--tg-viewport-stable-height, 100dvh);
+    padding-bottom: env(safe-area-inset-bottom, 70px);
+    font-size: clamp(14px, 1vw + 12px, 22px);
+    touch-action: manipulation;
 }
 
 .screen {
     display: none;
     width: 100%;
     min-height: 100vh;
-    padding: 16px;
+    min-height: 100dvh;
+    min-height: var(--tg-viewport-stable-height, 100dvh);
+    padding: env(safe-area-inset-top, 16px) env(safe-area-inset-right, 16px) env(safe-area-inset-bottom, 16px) env(safe-area-inset-left, 16px);
     flex-direction: column;
+    align-items: center; /* Center for large screens */
+}
+
+.screen-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .screen.active {
@@ -54,7 +70,7 @@ body {
 }
 
 .app-title {
-    font-size: 1.3rem;
+    font-size: clamp(18px, 1.5vw + 14px, 28px);
     font-weight: 800;
     display: flex;
     align-items: center;
@@ -69,7 +85,74 @@ body {
     background: transparent;
     border: none;
     color: var(--text-color);
-    font-size: 1.2rem;
+    font-size: clamp(20px, 2vw + 16px, 32px);
     cursor: pointer;
-    padding: 8px;
+    padding: 12px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+@media (hover: hover) {
+    .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+}
+
+.icon-btn:focus-visible {
+    outline: 3px solid var(--button-color);
+    transform: scale(1.05);
+}
+
+/* =========================================
+   USER REQUESTED RESPONSIVE FIXES
+   ========================================= */
+
+/* 1. Asosiy layout: telefonda bitta ustun (live-stats-row kabi qismlar) */
+@media (max-width: 900px) {
+    .live-stats-row {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100%;
+        gap: 12px;
+    }
+
+    .live-stats-row > * {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        flex: none !important;
+    }
+}
+
+/* 2. Kartalar (trek/param): matn ustma-ust tushmasin va height to'g'ri bo'lsin */
+.mini-param-card,
+.stat-item,
+.result-card-display {
+    height: auto !important;
+    min-height: 64px;
+    position: relative !important;
+    overflow: hidden;
+}
+
+.mini-param-card *,
+.stat-item *,
+.result-card-display * {
+    position: static;
+    overflow-wrap: anywhere;
+}
+
+/* 3. Gorizontal siljish (x-scroll) ning oldini olish */
+html, body { 
+    max-width: 100%; 
+    overflow-x: hidden; 
+}
+
+img, video, canvas, svg { 
+    max-width: 100%; 
+    height: auto;
 }

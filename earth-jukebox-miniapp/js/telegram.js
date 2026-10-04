@@ -18,8 +18,29 @@ class TelegramController {
         try {
             this.tg.ready();
             this.tg.expand();
-            this.tg.setHeaderColor('#0a0a1a');
-            this.tg.setBackgroundColor('#0a0a1a');
+            
+            // Allow dynamic themes instead of hardcoding
+            if (this.tg.themeParams && this.tg.themeParams.bg_color) {
+                this.tg.setHeaderColor(this.tg.themeParams.bg_color);
+                this.tg.setBackgroundColor(this.tg.themeParams.bg_color);
+            } else {
+                this.tg.setHeaderColor('#0a0a1a');
+                this.tg.setBackgroundColor('#0a0a1a');
+            }
+
+            this.tg.onEvent('themeChanged', () => {
+                if (this.tg.themeParams && this.tg.themeParams.bg_color) {
+                    this.tg.setHeaderColor(this.tg.themeParams.bg_color);
+                    this.tg.setBackgroundColor(this.tg.themeParams.bg_color);
+                }
+            });
+
+            this.tg.onEvent('viewportChanged', () => {
+                if(this.tg.isExpanded === false) {
+                    this.tg.expand();
+                }
+            });
+
         } catch (e) {
             console.error("Error initializing Telegram WebApp:", e);
         }
