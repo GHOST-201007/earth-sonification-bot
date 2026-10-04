@@ -64,6 +64,26 @@ async def main():
     await app.start()
     await app.updater.start_polling(drop_pending_updates=True)
 
+    # 5. Start a dummy web server so Render doesn't crash (Port bind timeout)
+    import os
+    from aiohttp import web
+    
+    async def handle_ping(request):
+        return web.Response(text="EARTH SONIFICATION BOT IS RUNNING! NASA Space Apps 2026")
+
+    runner = None
+    try:
+        port = int(os.environ.get("PORT", 10000))
+        web_app = web.Application()
+        web_app.router.add_get("/", handle_ping)
+        runner = web.AppRunner(web_app)
+        await runner.setup()
+        site = web.TCPSite(runner, "0.0.0.0", port)
+        await site.start()
+        logger.info(f"Dummy web server listening on port {port} to satisfy Render.")
+    except Exception as e:
+        logger.error(f"Failed to start dummy server: {e}")
+
     # Keep running until interrupted
     try:
         while True:
@@ -71,6 +91,8 @@ async def main():
     except (KeyboardInterrupt, SystemExit):
         logger.info("Stopping bot gracefully...")
     finally:
+        if runner:
+            await runner.cleanup()
         await app.updater.stop()
         await app.stop()
         await app.shutdown()
